@@ -1,0 +1,3 @@
+- put phoneasvrcontroller.js as git submodule
+- put info in readme.md
+- put threex.domevent2 as git submodule
