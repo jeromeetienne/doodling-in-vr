@@ -1,0 +1,6 @@
+[submodule "vendor/threex.domevents2"]
+	path = vendor/threex.domevents2
+	url = git@github.com:jeromeetienne/threex.domevents2.git
+[submodule "vendor/phoneasvrcontroller.js"]
+	path = vendor/phoneasvrcontroller.js
+	url = git@github.com:jeromeetienne/phoneasvrcontroller.js.git
