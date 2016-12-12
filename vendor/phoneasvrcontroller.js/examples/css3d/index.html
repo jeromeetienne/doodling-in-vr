@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>three.js css3d - youtube</title>
+		<meta charset='utf-8'>
+		<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0'>
+		<style>
+			html, body {
+				height: 100%;
+				overflow: hidden;
+				background-color: black;
+				margin: 0px;
+			}
+			#blocker {
+				position: absolute;
+				/* background-color: rgba(255, 0, 0, 0.5); */
+				top: 0px;
+				left: 0px;
+				width: 100%;
+				height: 100%;
+			}
+		</style>
+	</head>
+	<body>
+		<script src='../vendor/three.js/build/three.js'></script>
+		<script src='../vendor/three.js/examples/js/controls/TrackballControls.js'></script>
+		<script src='../vendor/three.js/examples/js/renderers/CSS3DRenderer.js'></script>
+		<script src='../vendor/three.js/examples/js/renderers/CSS3DObject-raycastsupport.js'></script>
+
+		<div id='container'></div>
+
+<script>
+	var onRenderFcts = []
+	var camera, scene, renderer;
+
+	init();
+	animate();
+
+	function init() {
+
+		var container = document.getElementById( 'container' );
+
+		camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
+		camera.position.set( 0, 0, 750 );
+
+		scene = new THREE.Scene();
+
+		renderer = new THREE.CSS3DRenderer();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		renderer.domElement.style.position = 'absolute';
+		renderer.domElement.style.top = 0;
+		container.appendChild( renderer.domElement );
+
+		controls = new THREE.TrackballControls( camera );
+		controls.rotateSpeed = 4;
+
+		window.addEventListener( 'resize', onWindowResize, false );
+	}
+
+	function onWindowResize() {
+
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
+		renderer.setSize( window.innerWidth, window.innerHeight );
+
+	}
+
+	function animate() {
+
+		requestAnimationFrame( animate );
+
+		controls.update();
+
+		// call each function for the rendering
+		onRenderFcts.forEach(function(onRenderFct){
+			onRenderFct()
+		})
+			
+		renderer.render( scene, camera );
+
+	}
+
+</script>
+
+<script src='../vendor/three.js/editor/js/libs/signals.min.js'></script>
+<script src='../../node_modules/socket.io/node_modules/socket.io-client/socket.io.js'></script>
+<script src='../../src/phoneasvrcontrollercontext.js'></script>
+<script src='../../src/phoneasvrcontrollerphone.js'></script>
+<script src='../js/threex.gamepadsignals.js'></script>
+
+
+<script src='js/rayCss3d.js'></script>
+<script src='../vendor/three.js/examples/js/renderers/Projector.js' charset='utf-8'></script>
+
+
+<script src='../js/threex.gamepadsignals.js'></script>
+<script src='../gestures/js/swipedetector.js'></script>
+<script src='../gestures/vendor/onedollar-unistroke-coffee/lib/onedollar.js'></script>
+
+<script type='text/javascript'>
+
+	//////////////////////////////////////////////////////////////////////////////
+	//		handle phone as controller
+	//////////////////////////////////////////////////////////////////////////////
+	var serverUrl = 'http://'+location.hostname+':4000'
+	var phoneAsVRController = new PhoneAsVRController.Context(serverUrl);
+	// update phoneAsVRController.viewQuaternion for recalibration
+	onRenderFcts.push(function(){
+		phoneAsVRController.viewQuaternion = camera.quaternion.toArray()
+	})
+
+	function getGamepad(hand){
+		// var gamepads = navigator.getGamepads()
+		var gamepads = phoneAsVRController.getGamepads()
+		for(var i = 0; i < gamepads.length; i++){
+			var gamepad = gamepads[i]
+			if( gamepad === undefined )	continue
+			if( gamepad.hand !== hand )	continue
+			return gamepad
+		}
+		return null
+	}
+
+	onRenderFcts.push(function(){
+		var gamepad = getGamepad('right')
+		if( gamepad === null )	return
+
+		// compute phoneModel from gamepad.pose.orientation
+		var controllerQuaternion = new THREE.Quaternion().fromArray(gamepad.pose.orientation)
+		rayCSS3D.setOrientation(controllerQuaternion)
+	})
+	//////////////////////////////////////////////////////////////////////////////
+	//		Code Separator
+	//////////////////////////////////////////////////////////////////////////////
+	var rayCSS3D = new RayCSS3D()
+	scene.add(rayCSS3D.object3d)
+	
+	// set the origin of the ray
+	onRenderFcts.push(function(){
+		camera.updateMatrixWorld(true)
+		var position = new THREE.Vector3(200,-200,-750)
+		camera.localToWorld(position)
+		rayCSS3D.object3d.position.copy(position)
+	})
+
+	var button0WasPressed = false
+	onRenderFcts.push(function(){
+		var gamepad = getGamepad('right')
+		if( gamepad === null )	return
+		
+		// test if the button0 is cliking
+		var button0IsPressed = gamepad.buttons[0].pressed
+		var clicking = button0WasPressed === false && button0IsPressed === true ? true : false
+		button0WasPressed = button0IsPressed
+
+		rayCSS3D.update(camera, scene.children, clicking)
+	})
+</script>
+<style>
+	.container {
+		background-color: #444;
+	}
+	.container ul {
+		margin: 0;
+		padding: 0;
+		list-style-type: none;
+		text-align: center;
+		line-height: 2em;
+
+		font-size: 200%;
+		font-family: arial;
+		font-weight: bold;
+		
+		height: 100%;
+		overflow-y: scroll;
+	}
+	
+	.container li {
+		border-bottom: 1px solid #ccc;
+	}
+	.container li.hovering {
+		background-color: #aaa;
+	}
+</style>
+<script>
+	var object = buildSimpleObject()
+	scene.add(object)
+
+	//////////////////////////////////////////////////////////////////////////////
+	//		Code Separator
+	//////////////////////////////////////////////////////////////////////////////
+	function buildSimpleObject(){
+		var items = [
+			'one',
+			'two',
+			'three',
+			'four',
+			'five',
+			'six',
+			'seven',
+			'height',
+		]
+		
+		var container = document.createElement( 'div' );
+		container.dataset.hoverable = true
+		container.classList.add('container')
+		container.style.width = '320px';
+		container.style.height = '320px';
+
+		var ulElement = document.createElement('ul')
+		container.appendChild(ulElement)
+		items.forEach(function(item){
+			var liElement = document.createElement('li')
+			ulElement.appendChild(liElement)
+			liElement.innerText = item
+			liElement.dataset.hoverable = true
+			liElement.dataset.clickable = true
+			
+			liElement.addEventListener('click', function(event){
+				console.log('clicked on item', item)
+			})
+		})
+
+		var object = new THREE.CSS3DObject( container );
+		object.name = 'menu'
+		object.position.z = -300
+		return object
+	}
+
+
+</script>
+<script src='../js/threex.gamepadsignals.js'></script>
+<script src='../gestures/js/swipedetector.js'></script>
+<script src='../gestures/vendor/onedollar-unistroke-coffee/lib/onedollar.js'></script>
+<script src="../js/threex.vrgestures.js"></script>
+<script>
+
+
+var gamepadSignals = new THREEx.GamepadSignals()
+onRenderFcts.push(function(){
+	var gamepad = getGamepad('right')
+	if( gamepad === null )	return
+	
+	gamepadSignals.update(gamepad)
+})
+//////////////////////////////////////////////////////////////////////////////
+//		Handle gestures
+//////////////////////////////////////////////////////////////////////////////
+var vrGestures = new THREEx.VrGestures(gamepadSignals)
+vrGestures.signals.swipe.add(function(direction){
+	
+	var object3d = scene.getObjectByName('menu')
+	var domElement = object3d.element.querySelector('ul')
+
+	var style = window.getComputedStyle(domElement.querySelector('li'))
+	var itemHeight = parseInt(style.lineHeight.replace(/px$/, ''), 10)
+
+	if( direction === 'up' ){
+		console.log('app swipe', direction)
+		domElement.scrollTop -= itemHeight
+	}
+	if( direction === 'down' ){
+		console.log('app swipe', direction)
+		domElement.scrollTop += itemHeight
+	}
+})
+</script>
+</body></html>

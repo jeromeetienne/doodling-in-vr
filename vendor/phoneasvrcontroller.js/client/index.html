@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<meta charset='utf-8'>
+<title>PhoneAsGamePad : phone option</title>
+<meta name='viewport' content='width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0, shrink-to-fit=no'>
+<meta name='mobile-web-app-capable' content='yes'>
+<meta name='apple-mobile-web-app-capable' content='yes' />
+<meta name='apple-mobile-web-app-status-bar-style' content='black-translucent' />
+<head>
+	<title>Phone Gamepad Option</title>
+</head>
+<link rel="stylesheet" href="css/index.css">
+<div id="container">
+	<h1>Phone As Vr Controller</h1>
+	<ul>
+		<li>Make your phone acts a daydream controller</li>
+		<li>3dof, 1 trackpad, 2 buttons</li>
+	</ul>
+	<input type="button" value="Ok" id='buttonOK'>
+
+	<ul class='options'>
+		<li>Hand : 
+			<span class='hand'><select name="select">
+				<option value="right" selected>right</option> 
+				<option value="left">left</option>
+			</select></span>
+		</li>
+		<li>Index : 
+			<span class='index'><select name="select">
+				<option value="0" selected>0</option> 
+				<option value="1">1</option>
+				<option value="2">2</option>
+				<option value="3">3</option>
+			</select></span>
+		</li>
+	</ul>
+</div>
+
+<script>
+	// goto gamepage.html on submit
+	document.querySelector('#buttonOK').addEventListener('touchstart', onSubmit)
+	document.querySelector('#buttonOK').addEventListener('click', onSubmit)
+
+	function onSubmit(){
+		var handValue = document.querySelector('#container .hand select').value
+		var indexValue = document.querySelector('#container .index select').value
+		var url = 'gamepad.html'
+		url += '#hand='+encodeURIComponent(handValue)
+		url += '&index='+encodeURIComponent(indexValue)
+		location.href = url
+	}
+</script>
+</html>

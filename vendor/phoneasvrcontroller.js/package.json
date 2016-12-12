@@ -1,0 +1,11 @@
+{
+  "name": "phoneasvrcontroller",
+  "version": "0.0.1",
+  "description": "using your phone as a controller for VR",
+  "dependencies": {
+    "socket.io": "^1.5.1"
+  },
+  "scripts": {
+    "start": "node server/server.js"
+  }
+}
