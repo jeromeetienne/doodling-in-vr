@@ -27,7 +27,8 @@ use ```npm install --legacy-bundling``` instead. Then start to run the websocket
 npm start
 ```
 
-then run a local http server. e.g. for [http-server](https://github.com/indexzero/http-server), it is
+In another terminal, run a local http server at the root of the repository
+e.g. for [http-server](https://github.com/indexzero/http-server), it is
 
 ```
 http-server
